@@ -30,6 +30,8 @@ SOFTWARE.
 //  Tracker
 //
 
+
+/// Wrapper class to manage your cart
 public class Cart: BusinessObject {
     
     /// Cart identifier
@@ -41,11 +43,10 @@ public class Cart: BusinessObject {
     /// Product list
     lazy var productList: [String: Product] = [String: Product]()
     
-    /**
-    Set a cart
-    - parameter cartId: the cart identifier
-    - returns: the cart
-    */
+    /// Set a cart
+    ///
+    /// - Parameter cartId: the cart identifier
+    /// - Returns: the cart
     public func set(_ cartId: String) -> Cart {
         if(cartId != self.cartId) {
             products.removeAll()
@@ -77,24 +78,24 @@ public class Cart: BusinessObject {
         for(_, product) in productList {
             _ = tracker.setParam("pdt" + String(i), value: product.buildProductName(), options:encodingOption)
             
-            if let optQuantity = product.quantity {
-                _ = tracker.setParam("qte" + String(i), value: optQuantity)
+            if product.quantity != -1 {
+                _ = tracker.setParam("qte" + String(i), value: product.quantity)
             }
             
-            if let optUnitPriceTaxFree = product.unitPriceTaxFree {
-                _ = tracker.setParam("mtht" + String(i), value: optUnitPriceTaxFree)
+            if product.unitPriceTaxFree != -1 {
+                _ = tracker.setParam("mtht" + String(i), value: product.unitPriceTaxFree)
             }
             
-            if let optUnitPriceTaxIncluded = product.unitPriceTaxIncluded {
-                _ = tracker.setParam("mt" + String(i), value: optUnitPriceTaxIncluded)
+            if product.unitPriceTaxIncluded != -1 {
+                _ = tracker.setParam("mt" + String(i), value: product.unitPriceTaxIncluded)
             }
             
-            if let optDiscountTaxFree = product.discountTaxFree {
-                _ = tracker.setParam("dscht" + String(i), value: optDiscountTaxFree)
+            if product.discountTaxFree != -1 {
+                _ = tracker.setParam("dscht" + String(i), value: product.discountTaxFree)
             }
             
-            if let optDiscountTaxIncluded = product.discountTaxIncluded {
-                _ = tracker.setParam("dsc" + String(i), value: optDiscountTaxIncluded)
+            if product.discountTaxIncluded != -1 {
+                _ = tracker.setParam("dsc" + String(i), value: product.discountTaxIncluded)
             }
             
             if let optPromotionalCode = product.promotionalCode {

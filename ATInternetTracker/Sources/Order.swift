@@ -32,6 +32,7 @@ SOFTWARE.
 
 import Foundation
 
+/// Wrapper class to manage SalesTracker Order feature
 public class Order: BusinessObject {
     fileprivate var _status: Int?
     fileprivate var _isNewCustomer: Bool?
@@ -79,6 +80,11 @@ public class Order: BusinessObject {
         super.init(tracker: tracker)
     }
     
+    /// Create a new Order
+    ///
+    /// - Parameters:
+    ///   - orderId: order identifier
+    ///   - turnover: order turnover
     public init(orderId: String, turnover: Double) {
         super.init()
         
@@ -86,6 +92,12 @@ public class Order: BusinessObject {
         self.turnover = turnover
     }
     
+    /// Create a new Order
+    ///
+    /// - Parameters:
+    ///   - orderId: order identifier
+    ///   - turnover: order turnover
+    ///   - status: order status 0=No information, 1=Pending, 2=cancelled, 3=approved, 4=return
     public convenience init(orderId: String, turnover: Double, status: Int) {
         self.init(orderId: orderId, turnover: turnover)
         
@@ -108,36 +120,36 @@ public class Order: BusinessObject {
             _ = tracker.setParam("newcus", value: optIsNewCustomer ? 1 : 0)
         }        
 
-        if let optDiscountTaxFree = discount.discountTaxFree {
-            _ = tracker.setParam("dscht", value: optDiscountTaxFree)
+        if discount.discountTaxFree != -1 {
+            _ = tracker.setParam("dscht", value: discount.discountTaxFree)
         }
         
-        if let optDiscountTaxIncluded = discount.discountTaxIncluded {
-            _ = tracker.setParam("dsc", value: optDiscountTaxIncluded)
+        if discount.discountTaxIncluded != -1 {
+            _ = tracker.setParam("dsc", value: discount.discountTaxIncluded)
         }
         
         if let optPromotionalCode = discount.promotionalCode {
             _ = tracker.setParam("pcd", value: optPromotionalCode, options:encodingOption)
         }
         
-        if let optAmountTaxFree = amount.amountTaxFree {
-            _ = tracker.setParam("mtht", value: optAmountTaxFree)
+        if amount.amountTaxFree != -1 {
+            _ = tracker.setParam("mtht", value: amount.amountTaxFree)
         }
         
-        if let optAmountTaxIncluded = amount.amountTaxIncluded {
-            _ = tracker.setParam("mtttc", value: optAmountTaxIncluded)
+        if amount.amountTaxIncluded != -1 {
+            _ = tracker.setParam("mtttc", value: amount.amountTaxIncluded)
         }
         
-        if let optTaxAmount = amount.taxAmount {
-            _ = tracker.setParam("tax", value: optTaxAmount)
+        if amount.taxAmount != -1 {
+            _ = tracker.setParam("tax", value: amount.taxAmount)
         }
     
-        if let optShippingFeesTaxFree = delivery.shippingFeesTaxFree {
-            _ = tracker.setParam("fpht", value: optShippingFeesTaxFree)
+        if delivery.shippingFeesTaxFree != -1 {
+            _ = tracker.setParam("fpht", value: delivery.shippingFeesTaxFree)
         }
         
-        if let optShippingFeesTaxIncluded = delivery.shippingFeesTaxIncluded {
-            _ = tracker.setParam("fp", value: optShippingFeesTaxIncluded)
+        if delivery.shippingFeesTaxIncluded != -1 {
+            _ = tracker.setParam("fp", value: delivery.shippingFeesTaxIncluded)
         }
         
         if let optDeliveryMethod = delivery.deliveryMethod {
@@ -158,6 +170,7 @@ public class Order: BusinessObject {
     }
 }
 
+/// Wrapper class to manage Orders instances
 public class Orders: NSObject {
     /// Tracker instance
     var tracker: Tracker
@@ -171,12 +184,12 @@ public class Orders: NSObject {
         self.tracker = tracker;
     }
     
-    /**
-    Set an order
-    - parameter orderId: order identifier
-    - parameter turnover: order turnover
-    - returns: Order instance
-    */
+    /// Add an order
+    ///
+    /// - Parameters:
+    ///   - orderId: order identifier
+    ///   - turnover: order turnover
+    /// - Returns: Order instance
     public func add(_ orderId: String, turnover: Double) -> Order {
         let order = Order(tracker: tracker)
         order.orderId = orderId
@@ -186,13 +199,13 @@ public class Orders: NSObject {
         return order
     }
     
-    /**
-    Set an order
-    - parameter orderId: order identifier
-    - parameter turnover: order turnover
-    - parameter status: order status
-    - returns: Order instance
-    */
+    ///  Add an order
+    ///
+    /// - Parameters:
+    ///   - orderId: order identifier
+    ///   - turnover: order turnover
+    ///   - status: order status. 0=No information, 1=Pending, 2=cancelled, 3=approved, 4=return
+    /// - Returns: Order instance
     public func add(_ orderId: String, turnover: Double, status: Int) -> Order {
         let order = add(orderId, turnover: turnover)
         order.status = status
@@ -201,15 +214,16 @@ public class Orders: NSObject {
     }
 }
 
+/// Wrapper class to manage specific order discount feature
 public class OrderDiscount: NSObject {
     
     /// Order instance
     var order: Order
     
     /// Discount with tax
-    public var discountTaxIncluded: Double?
+    public var discountTaxIncluded: Double = -1
     /// Discount without tax
-    public var discountTaxFree: Double?
+    public var discountTaxFree: Double = -1
     /// Promotional code
     public var promotionalCode: String?
     
@@ -222,13 +236,13 @@ public class OrderDiscount: NSObject {
         self.order = order
     }
     
-    /**
-    Set a discount
-    - parameter discountTaxFree: discount value tax free
-    - parameter discountTaxIncluded: discount value tax included
-    - parameter promotionalCode: promotional code
-    - returns: the Order instance
-    */
+    /// Attach discount to order
+    ///
+    /// - Parameters:
+    ///   - discountTaxFree: discount value tax free
+    ///   - discountTaxIncluded: discount value tax included
+    ///   - promotionalCode: promotional code
+    /// - Returns: the Order instance
     public func set(_ discountTaxFree: Double, discountTaxIncluded: Double, promotionalCode: String) -> Order {
         self.discountTaxIncluded = discountTaxIncluded
         self.discountTaxFree = discountTaxFree
@@ -238,19 +252,20 @@ public class OrderDiscount: NSObject {
     }
 }
 
+/// Wrapper class to manage specific order amount feature
 public class OrderAmount: NSObject {
     
     /// Order instance
     var order: Order
     
     /// Amount without tax
-    public var amountTaxFree: Double?
+    public var amountTaxFree: Double = -1
     
     /// Amount with tax
-    public var amountTaxIncluded: Double?
+    public var amountTaxIncluded: Double = -1
     
     /// Tax amount
-    public var taxAmount: Double?
+    public var taxAmount: Double = -1
     
     /**
     OrderAmount initializer
@@ -261,13 +276,13 @@ public class OrderAmount: NSObject {
         self.order = order
     }
     
-    /**
-    Set an amount
-    - parameter amountTaxFree: amount value tax free
-    - parameter amountTaxIncluded: amount value tax included
-    - parameter taxAmount: tax amount
-    - returns: the Order instance
-    */
+    /// Attach amount object to order
+    ///
+    /// - Parameters:
+    ///   - amountTaxFree: amount value tax free
+    ///   - amountTaxIncluded:  amount value tax included
+    ///   - taxAmount: tax amount
+    /// - Returns: the Order instance
     public func set(_ amountTaxFree: Double, amountTaxIncluded: Double, taxAmount: Double) -> Order {
         self.amountTaxFree = amountTaxFree
         self.amountTaxIncluded = amountTaxIncluded
@@ -277,34 +292,33 @@ public class OrderAmount: NSObject {
     }
 }
 
+/// Wrapper class to manage specific order delivery feature
 public class OrderDelivery: NSObject {
     
     /// Order instance
     var order: Order
     
     /// Shipping fees with tax
-    public var shippingFeesTaxIncluded: Double?
+    public var shippingFeesTaxIncluded: Double = -1
     /// Shipping fees without tax
-    public var shippingFeesTaxFree: Double?
+    public var shippingFeesTaxFree: Double = -1
     /// Delivery method
     public var deliveryMethod: String?
     
-    /**
-    OrderDelivery initializer
-    - parameter order: the order instance
-    - returns: OrderDelivery instance
-    */
+    /// OrderDelivery initializer
+    ///
+    /// - Parameter order: the order instance
     init(order: Order) {
         self.order = order
     }
     
-    /**
-    Set a delivery
-    - parameter shippingFeesTaxFree: shipping fees tax free
-    - parameter shippingFeesTaxIncluded: shipping fees tax included
-    - parameter deliveryMethod: delivery method
-    - returns: the Order instance
-    */
+    /// Attach delivery to order
+    ///
+    /// - Parameters:
+    ///   - shippingFeesTaxFree: shipping fees tax free
+    ///   - shippingFeesTaxIncluded: shipping fees tax included
+    ///   - deliveryMethod: delivery method
+    /// - Returns: the Order instance
     public func set(_ shippingFeesTaxFree: Double, shippingFeesTaxIncluded: Double, deliveryMethod: String) -> Order {
         self.shippingFeesTaxFree = shippingFeesTaxFree
         self.shippingFeesTaxIncluded = shippingFeesTaxIncluded
@@ -314,6 +328,7 @@ public class OrderDelivery: NSObject {
     }
 }
 
+/// Wrapper class for tracking order custom variables
 public class OrderCustomVar: NSObject {
     
     /// Custom var identifier
@@ -321,18 +336,18 @@ public class OrderCustomVar: NSObject {
     /// Custom var value
     public var value: String = ""
     
-    /**
-    OrderCustomVar initializer
-    - parameter varId: custom var identifier
-    - parameter value: custom var value
-    - returns: OrderCustomVar instance
-    */
+    /// initializer
+    ///
+    /// - Parameters:
+    ///   - varId: custom var identifier
+    ///   - value: custom var value
     init(varId: Int, value: String) {
         self.varId = varId
         self.value = value
     }
 }
 
+/// Wrapper class to manage OrderCustomVar instances
 public class OrderCustomVars: NSObject {
     
     /// Order instance
@@ -349,13 +364,13 @@ public class OrderCustomVars: NSObject {
     init(order: Order) {
         self.order = order
     }
-    
-    /**
-    Set a custom var
-    - parameter varId: custom var identifier
-    - parameter value: custom var value
-    - returns: the OrderCustomVar instance
-    */
+
+    /// Add a custom var
+    ///
+    /// - Parameters:
+    ///   - varId: custom var identifier
+    ///   - value: custom var value
+    /// - Returns: the OrderCustomVar instance
     public func add(_ varId: Int, value: String) ->  OrderCustomVar {
         let customVar = OrderCustomVar(varId: varId, value: value)
         

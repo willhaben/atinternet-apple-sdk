@@ -31,10 +31,10 @@ import Foundation
 public let ReachabilityChangedNotification = "ReachabilityChangedNotification"
 
 
-public class Reachability: NSObject {
+public class ATReachability: NSObject {
     
-    public typealias NetworkReachable = (Reachability) -> ()
-    public typealias NetworkUnreachable = (Reachability) -> ()
+    public typealias NetworkReachable = (ATReachability) -> ()
+    public typealias NetworkUnreachable = (ATReachability) -> ()
     
     public enum NetworkStatus: CustomStringConvertible {
         
@@ -90,7 +90,7 @@ public class Reachability: NSObject {
         self.init(reachabilityRef: ref)
     }
     
-    public class func reachabilityForInternetConnection() -> Reachability? {
+    public class func reachabilityForInternetConnection() -> ATReachability? {
         if #available(iOS 9.0, *) {
             var zeroAddress = sockaddr_in6()
             zeroAddress.sin6_len = UInt8(MemoryLayout<sockaddr_in6>.size)
@@ -101,7 +101,7 @@ public class Reachability: NSObject {
                     SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
                 }
             }
-            return Reachability(reachabilityRef: ref)
+            return ATReachability(reachabilityRef: ref)
         } else {
             var zeroAddress = sockaddr_in()
             zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
@@ -112,7 +112,7 @@ public class Reachability: NSObject {
                     SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
                 }
             }
-            return Reachability(reachabilityRef: ref)
+            return ATReachability(reachabilityRef: ref)
         }
     }
     
@@ -122,11 +122,11 @@ public class Reachability: NSObject {
         if notifierRunning { return true }
         
         var context = SCNetworkReachabilityContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
-        context.info = UnsafeMutableRawPointer(Unmanaged<Reachability>.passUnretained(self).toOpaque())
+        context.info = UnsafeMutableRawPointer(Unmanaged<ATReachability>.passUnretained(self).toOpaque())
         
         SCNetworkReachabilitySetCallback(reachabilityRef!,
                                          { (_, flags, info) in
-                                            let reachability = Unmanaged<Reachability>.fromOpaque(info!).takeUnretainedValue()
+                                            let reachability = Unmanaged<ATReachability>.fromOpaque(info!).takeUnretainedValue()
                                             
                                             DispatchQueue.main.async {
                                                 reachability.reachabilityChanged(flags: flags)
